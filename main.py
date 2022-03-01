@@ -35,6 +35,18 @@ class SoccerGuru():
 
         return new_player_dict
 
+    def filter_exact_rating(self, player_dict, rating_cap=100, league="", country=""):
+        new_player_dict = dict()
+        for key, value in player_dict.items():
+            for i in value:
+                if int(i[1]) == rating_cap and (league == i[2] or league == "") and (country == i[3] or country == ""):
+                    if key in new_player_dict:
+                        new_player_dict[key].append(i)
+                    else:
+                        new_player_dict[key] = [i]
+
+        return new_player_dict
+
     def _get_player_dict(self):
         return self.allplayers
 
