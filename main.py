@@ -73,7 +73,38 @@ class SoccerGuru():
                     self.lock1.acquire()
                     self.allplayers[overall_stats] = [[name, rating, league, country, position]]
                     self.lock1.release()
+                    
+    def _get_players_from_csv(self):
+        
+        import csv
 
+        with open('guru.csv') as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            line_count = 0
+            for row in csv_reader:
+                if line_count == 0:
+                    print(f'Column names are {", ".join(row)}')
+                    line_count += 1
+                else:
+                    self.lock2.acquire()
+                    self.player_count += 1
+                    self.lock2.release()
+                    print(row)
+                    league = row[1]
+                    position = row[5]
+                    country = row[2]
+                    name = row[0]
+                    rating = str(row[3])
+                    overall_stats = int(row[4])
+
+                    if overall_stats in self.allplayers:
+                        self.lock1.acquire()
+                        self.allplayers[overall_stats].append([name, rating, league, country, position])
+                        self.lock1.release()
+                    else:
+                        self.lock1.acquire()
+                        self.allplayers[overall_stats] = [[name, rating, league, country, position]]
+                        self.lock1.release()
     def _pickle_object(self, player_dict):
         dbfile = open('playerpickle', 'ab')
         pickle.dump(player_dict, dbfile)
@@ -90,6 +121,8 @@ class SoccerGuru():
             t = threading.Thread(target=self._get_players, args=(79*i, 79*i+79))
             t.start()
 
+        t_1 = threading.Thread(target=self._get_players_from_csv)
+        t_1.start()
         for thread in threading.enumerate()[1:]:
             thread.join()
 

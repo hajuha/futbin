@@ -97,8 +97,16 @@ async def rr(ctx, rating=100, number=10):
 async def rn(ctx, nation="ENG", number=10):
     # await ctx.send("Updating...")
     nation = nation.upper()
-    nations = {'ENG': "14", 'FRA': "18", "GER": "21",
-               'NED': '34', 'POR': '38', 'ITA': '27', 'BEL': '7'}
+    nations = {'ENG': "14",
+               'FRA': "18",
+               "GER": "21",
+               "SPA": "45",
+               'NED': '34',
+               'POR': '38', 
+               'ITA': '27', 
+               'ARG': '52', 
+               'BRA': '54', 
+               'BEL': '7'}
     nation_code = nations.get(nation)
     if nation_code is None:
         legit_nation = list(nations.keys())
