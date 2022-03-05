@@ -6,6 +6,7 @@ from config import getToken
 
 bot = commands.Bot(command_prefix='$', help_command=None)
 
+
 @bot.command()
 async def help(ctx):
     message = "**Search FUT Card database:**\n---```\n$rn [nation] [rating] [amount]\n```\nGet [*amount*] of [*nation*] cards which rating below or equal to [*rating*]\nNation: eng, ger, fra, spa, bra, ita,...\n---```\n$rl [league] [rating] [amount]\n```\nGet [*amount*] of [*league*] cards which rating below or equal to [*rating*]\nLeague: eng1, fra1, Ger1, ITA1,...\n---```\n$rr [rating] [amount]\n```\nGet [*amount*] cards which rating below or equal to [*rating*]\n"
@@ -86,7 +87,7 @@ async def rr(ctx, rating=99, number=10):
             overall = next(overall_list)
             for j in range(0, len(player_dict[overall])):
                 player = player_dict[overall][j]
-                print(player)
+                
                 memberlist.append(
                     f"{str(overall)} {player[2]} {player[0]} {player[1]} {player[4]}")
                 count += 1
@@ -114,8 +115,14 @@ async def rn(ctx, nation="ENG", rating=99, number=10):
                'ITA': '27',
                'ARG': '52',
                'BRA': '54',
-               'BEL': '7'}
-    nation_code = nations.get(nation)
+               'BEL': '7',
+               'DEL': '13',
+               'MEX': '83',
+               'URU': '60',
+               'CRO': '10',
+               'RUS': '40',
+               }
+    nation_code = nations.get(nation, None)
     if nation_code is None:
         legit_nation = list(nations.keys())
         embed = discord.Embed()

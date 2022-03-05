@@ -1,3 +1,4 @@
+import time
 import requests
 from bs4 import BeautifulSoup
 import pickle
@@ -52,7 +53,7 @@ class SoccerGuru():
 
     def _get_players(self, start, end):
         for i in range(start, end):
-            print("Currently getting page: " + str(i))
+            # print("Currently getting page: " + str(i))
             URL = self.URL_BASE + str(i)
             page = requests.get(URL)
 
@@ -64,31 +65,50 @@ class SoccerGuru():
                 self.lock2.acquire()
                 self.player_count += 1
                 self.lock2.release()
-                league = player_row.find("p", class_="team").find_all("a")[1].text
+                league = player_row.find(
+                    "p", class_="team").find_all("a")[1].text
                 league = league.replace(" ", "")
                 position = list(player_row.children)[7].text.strip()
-                country = player_row.find("img", class_="nation").attrs['src'].split(".")[0].split("/")[-1]
+                country = player_row.find("img", class_="nation").attrs['src'].split(".")[
+                    0].split("/")[-1]
                 name = player_row.find("b").text
                 stats = player_row.find_all(class_="stat")
                 rating = player_row.find(class_="otherversion22-txt").text
                 overall_stats = 0
-                if name == "Conor Gallagher":
-                    print(name, rating, league, country, position)
                 for stat in stats:
                     overall_stats += int(stat.text)
 
                 if overall_stats in self.allplayers:
                     self.lock1.acquire()
-                    self.allplayers[overall_stats].append([name, rating, league, country, position])
+                    self.allplayers[overall_stats].append(
+                        [name, rating, league, country, position])
                     self.lock1.release()
                 else:
                     self.lock1.acquire()
-                    self.allplayers[overall_stats] = [[name, rating, league, country, position]]
+                    self.allplayers[overall_stats] = [
+                        [name, rating, league, country, position]]
                     self.lock1.release()
-                    
+
     def _get_players_from_csv(self):
-        
+
         import csv
+
+        nations = {'ENG': "14",
+                   'FRA': "18",
+                   "GER": "21",
+                   "SPA": "45",
+                   'NED': '34',
+                   'POR': '38',
+                   'ITA': '27',
+                   'ARG': '52',
+                   'BRA': '54',
+                   'BEL': '7',
+                   'DEL': '13',
+                   'MEX': '83',
+                   'URU': '60',
+                   'CRO': '10',
+                   'RUS': '40',
+                   }
 
         with open('guru.csv') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
@@ -101,22 +121,27 @@ class SoccerGuru():
                     self.lock2.acquire()
                     self.player_count += 1
                     self.lock2.release()
-                    print(row)
+
                     league = row[1]
                     position = row[5]
                     country = row[2]
+                    country = country.upper()
+                    nation_code = nations.get(country, None)
                     name = row[0]
                     rating = str(row[3])
                     overall_stats = int(row[4])
 
                     if overall_stats in self.allplayers:
                         self.lock1.acquire()
-                        self.allplayers[overall_stats].append([name, rating, league, country, position])
+                        self.allplayers[overall_stats].append(
+                            [name, rating, league, nation_code, position])
                         self.lock1.release()
                     else:
                         self.lock1.acquire()
-                        self.allplayers[overall_stats] = [[name, rating, league, country, position]]
+                        self.allplayers[overall_stats] = [
+                            [name, rating, league, nation_code, position]]
                         self.lock1.release()
+
     def _pickle_object(self, player_dict):
         dbfile = open('playerpickle', 'ab')
         pickle.dump(player_dict, dbfile)
@@ -129,6 +154,7 @@ class SoccerGuru():
         return player_dict
 
     def _begin_thread(self):
+        time_1 = time.time()
         for i in range(0, 10):
             t = threading.Thread(target=self._get_players, args=(79*i, 79*i+79))
             t.start()
@@ -137,7 +163,9 @@ class SoccerGuru():
         t_1.start()
         for thread in threading.enumerate()[1:]:
             thread.join()
+        time_2 = time.time()
 
+        print(time_2-time_1)
         print("Completed")
 
 
@@ -153,7 +181,8 @@ def print_top(max_rating=100, league="", country="", show_number=10):
     for i in range(show_number):
         try:
             overall = next(overall_list)
-            print("Overall base stats is " + str(overall) + ": ", player_dict[overall])
+            print("Overall base stats is " +
+                  str(overall) + ": ", player_dict[overall])
         except:
             break
 
