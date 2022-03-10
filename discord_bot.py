@@ -5,6 +5,9 @@ from discord.ext import commands
 from config import getToken
 from datetime import datetime
 import re
+import math
+
+PRICE_PATTERN = r'([``])(?:(?=(\\?))\2.)*?\1'
 
 bot = commands.Bot(command_prefix='$', help_command=None)
 
@@ -261,7 +264,8 @@ async def pages(ctx):
             break
             # ending the loop if user doesn't react after x seconds
 tom_id = "736909539668131881"
-
+guru_bot_id = "668075833780469772"
+price_alert = 300000
 
 @bot.event
 async def on_message(message):
@@ -273,34 +277,33 @@ async def on_message(message):
 
                 def check(m):            
                     
-                    if str(m.author.id) == "668075833780469772" and m.channel == channel:
+                    if str(m.author.id) == guru_bot_id and m.channel == channel:
                         return True
 
                 msg = await bot.wait_for('message', check=check)
                 embed_msg = msg.embeds[0]
-                pattern = r'([``])(?:(?=(\\?))\2.)*?\1'
-                m1 = re.search(pattern, embed_msg.description)
+                m1 = re.search(PRICE_PATTERN, embed_msg.description)
                 player = embed_msg.title.split()[0]
                 
                 if m1 and player != "Hãy":
                     price = int(m1.group().replace(",","").replace("`",""))
-                    if price > 300000:
-                        await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{datetime.timestamp(message.created_at)}:f>")
+                    if price > price_alert:
+                        await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
                     else:
-                        await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{datetime.timestamp(message.created_at)}:f>")
+                        await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
                 else:
                     msg_2 = await bot.wait_for('message', check=check)
                     embed_msg_2 = msg_2.embeds[0]
-                    pattern = r'([``])(?:(?=(\\?))\2.)*?\1'
-                    m2 = re.search(pattern, embed_msg_2.description)
+
+                    m2 = re.search(PRICE_PATTERN, embed_msg_2.description)
                     player = embed_msg_2.title.split()[0]
                     
                     if m2 and player != "Hãy":
                         price = int(m2.group().replace(",","").replace("`",""))
                         if price > 300000:
-                            await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{datetime.timestamp(message.created_at)}:f>")
+                            await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
                         else:
-                            await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{datetime.timestamp(message.created_at)}:f>")
+                            await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
                 
     except Exception as e:
         print(e)
@@ -324,7 +327,7 @@ async def on_message(message):
 #                 price = int(m1.group().replace(",","").replace("`",""))
 #                 player = embed_msg.title.split()[0]
 #                 print(player, price)
-#                 # await message.channel.send(f"CLAIM-ALERT <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{datetime.timestamp(message.created_at)}:f>py")
+#                 # await message.channel.send(f"CLAIM-ALERT <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>py")
 #             else:
 #                 await message.channel.send(embed =embed_msg)
 #         except Exception as e:
@@ -342,12 +345,5 @@ async def on_message(message):
         # await channel.send(embed=embed
         # )
 
-# def test():
-    
-#     channel = bot.get_channel(925681747755143220)
-#     message = channel.fetch_message(951161577481056306)
-#     print(message.embed[0].description)
-
 token = getToken()
 bot.run(token)
-# test()
