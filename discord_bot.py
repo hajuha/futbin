@@ -121,7 +121,7 @@ async def rn(ctx, nation="ENG", rating=99, number=10):
                'ARG': '52',
                'BRA': '54',
                'BEL': '7',
-               'DEL': '13',
+               'DEN': '13',
                'MEX': '83',
                'URU': '60',
                'CRO': '10',

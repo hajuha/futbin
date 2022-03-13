@@ -103,7 +103,7 @@ class SoccerGuru():
                    'ARG': '52',
                    'BRA': '54',
                    'BEL': '7',
-                   'DEL': '13',
+                   'DEN': '13',
                    'MEX': '83',
                    'URU': '60',
                    'CRO': '10',
@@ -156,7 +156,7 @@ class SoccerGuru():
     def _begin_thread(self):
         time_1 = time.time()
         for i in range(0, 10):
-            t = threading.Thread(target=self._get_players, args=(79*i, 79*i+79))
+            t = threading.Thread(target=self._get_players, args=(81*i, 81*i+81))
             t.start()
 
         t_1 = threading.Thread(target=self._get_players_from_csv)
