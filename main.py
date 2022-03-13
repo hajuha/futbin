@@ -24,11 +24,11 @@ class SoccerGuru():
         player_dict = self._unpickle_object()
         return player_dict
 
-    def filter(self, player_dict, rating_cap=100, league="", country=""):
+    def filter(self, player_dict, rating_cap=100, league="", country="", position=""):
         new_player_dict = dict()
         for key, value in player_dict.items():
             for i in value:
-                if int(i[1]) <= rating_cap and (league == i[2] or league == "") and (country == i[3] or country == ""):
+                if int(i[1]) <= rating_cap and (league == i[2] or league == "") and (country == i[3] or country == "") and (position == i[4] or position == ""):
                     if key in new_player_dict:
                         new_player_dict[key].append(i)
                     else:

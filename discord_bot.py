@@ -14,7 +14,7 @@ bot = commands.Bot(command_prefix='$', help_command=None)
 
 @bot.command()
 async def help(ctx):
-    message = "**Search FUT Card database:**\n---```\n$rn [nation] [rating] [amount]\n```\nGet [*amount*] of [*nation*] cards which rating below or equal to [*rating*]\nNation: eng, ger, fra, spa, bra, ita,...\n---```\n$rl [league] [rating] [amount]\n```\nGet [*amount*] of [*league*] cards which rating below or equal to [*rating*]\nLeague: eng1, fra1, Ger1, ITA1,...\n---```\n$rr [rating] [amount]\n```\nGet [*amount*] cards which rating below or equal to [*rating*]\n"
+    message = "**Search FUT Card database:**\n---```\n$rn [nation] [position] [rating] [amount]\n```\nGet [*amount*] of [*nation*] [*position*] cards which rating below or equal to [*rating*]\nNation: eng, ger, fra, spa, bra, ita,...\n---```\n$rl [league] [position] [rating] [amount]\n```\nGet [*amount*] of [*league*] [*position*] cards which rating below or equal to [*rating*]\nLeague: eng1, fra1, Ger1, ITA1,...\n---```\n$rr [rating] [position] [amount]\n```\nGet [*amount*] [*position*] cards which rating below or equal to [*rating*]\n"
     await ctx.send(message)
 # @bot.command()
 # async def ovr(ctx, rating=100, league="", number=10):
@@ -44,102 +44,36 @@ async def help(ctx):
 #         memberlist = [f"```Top {league} {rating} cards:"] + memberlist
 #         await ctx.send("\n".join(memberlist)+"```")
 
+positions = {'GK', "CDM", "CM", "CB", "LB", "LWB", "RWB", "CAM",
+             "RM", "LM", "CF", "ST", "RF", "LF", "RW", "LW",
+             }
 
-@bot.command()
-async def rl(ctx, league="", rating=99, number=10):
-    # await ctx.send("Updating...")
-    a = SoccerGuru()
-    league = league.upper()
-    player_dict = a.unload_pickle()
-    player_dict = a.filter(player_dict, rating, league, "")
-    overall_list = list(player_dict.keys())
-    overall_list.sort()
-    overall_list = reversed(overall_list)
-    memberlist = []
-    count = 0
-    while count < min(number, 25):
-        try:
-            overall = next(overall_list)
-            for j in range(0, len(player_dict[overall])):
-                player = player_dict[overall][j]
-                memberlist.append(
-                    f"{str(overall)} {player[0]} {player[1]} {player[4]}")
-                count += 1
-        except Exception as e:
-            print(e)
-            break
-    if len(memberlist) == 0:
-        await ctx.send("No player found ! DM <@!333070457278562306> for more info")
-    else:
-        memberlist = [
-            f"```\nTop {number} {league} {rating} cards: \n"] + memberlist
-        await ctx.send("\n".join(memberlist)+"```")
+
+def validate_pos(pos):
+
+    return pos in positions
 
 
 @bot.command()
-async def rr(ctx, rating=99, number=10):
+async def rl(ctx, league="", position="", rating=99, number=10):
     # await ctx.send("Updating...")
-    a = SoccerGuru()
-    player_dict = a.unload_pickle()
-    player_dict = a.filter(player_dict, rating, "", "")
-    overall_list = list(player_dict.keys())
-    overall_list.sort()
-    overall_list = reversed(overall_list)
-    memberlist = []
-    count = 0
-    while count < min(number, 25):
-        try:
-            overall = next(overall_list)
-            for j in range(0, len(player_dict[overall])):
-                player = player_dict[overall][j]
-
-                memberlist.append(
-                    f"{str(overall)} {player[2]} {player[0]} {player[1]} {player[4]}")
-                count += 1
-        except Exception as e:
-            print(e)
-            break
-    if len(memberlist) == 0:
-
-        await ctx.send("No player found ! DM <@!333070457278562306> for more info")
-    else:
-        memberlist = [f"```Top {number} {rating} cards: "] + memberlist
-        await ctx.send("\n".join(memberlist)+"```")
-
-
-@bot.command()
-async def rn(ctx, nation="ENG", rating=99, number=10):
-    # await ctx.send("Updating...")
-    nation = nation.upper()
-    nations = {'ENG': "14",
-               'FRA': "18",
-               "GER": "21",
-               "SPA": "45",
-               'NED': '34',
-               'POR': '38',
-               'ITA': '27',
-               'ARG': '52',
-               'BRA': '54',
-               'BEL': '7',
-               'DEN': '13',
-               'MEX': '83',
-               'URU': '60',
-               'CRO': '10',
-               'RUS': '40',
-               }
-    nation_code = nations.get(nation, None)
-    if nation_code is None:
-        legit_nation = list(nations.keys())
+    print('test')
+    position = position.upper()
+    if not validate_pos(position):
         embed = discord.Embed()
-        inner = '\n'.join(legit_nation)
+        inner = '\n'.join(positions)
         embed.add_field(
-            name="You should enter the following nations:", value=inner, inline=False)
+            name="You should enter the following positions:", value=inner, inline=False)
 
         await ctx.send(embed=embed)
     else:
+        if position == "all":
+            position = ""
+
         a = SoccerGuru()
+        league = league.upper()
         player_dict = a.unload_pickle()
-        player_dict = a.filter(player_dict, rating, "", nation_code)
+        player_dict = a.filter(player_dict, rating, league, "", position)
         overall_list = list(player_dict.keys())
         overall_list.sort()
         overall_list = reversed(overall_list)
@@ -151,53 +85,36 @@ async def rn(ctx, nation="ENG", rating=99, number=10):
                 for j in range(0, len(player_dict[overall])):
                     player = player_dict[overall][j]
                     memberlist.append(
-                        f"{str(overall)} {player[2]} {player[0]} {player[1]} {player[4]}")
+                        f"{str(overall)} {player[0]} {player[1]} {player[4]}")
                     count += 1
             except Exception as e:
                 print(e)
                 break
         if len(memberlist) == 0:
-
             await ctx.send("No player found ! DM <@!333070457278562306> for more info")
         else:
             memberlist = [
-                f"```Top {number} {nation} {rating} cards: "] + memberlist
+                f"```\nTop {number} {league} {rating} cards: \n"] + memberlist
             await ctx.send("\n".join(memberlist)+"```")
 
 
 @bot.command()
-async def rnpage(ctx, nation="ENG", rating=99, number=10):
+async def rr(ctx, rating=99, position="", number=10):
     # await ctx.send("Updating...")
-    nation = nation.upper()
-    nations = {'ENG': "14",
-               'FRA': "18",
-               "GER": "21",
-               "SPA": "45",
-               'NED': '34',
-               'POR': '38',
-               'ITA': '27',
-               'ARG': '52',
-               'BRA': '54',
-               'BEL': '7',
-               'DEL': '13',
-               'MEX': '83',
-               'URU': '60',
-               'CRO': '10',
-               'RUS': '40',
-               }
-    nation_code = nations.get(nation, None)
-    if nation_code is None:
-        legit_nation = list(nations.keys())
+    position = position.upper()
+    if not validate_pos(position):
         embed = discord.Embed()
-        inner = '\n'.join(legit_nation)
+        inner = '\n'.join(positions)
         embed.add_field(
-            name="You should enter the following nations:", value=inner, inline=False)
+            name="You should enter the following positions:", value=inner, inline=False)
 
         await ctx.send(embed=embed)
     else:
+        if position == "all":
+            position = ""
         a = SoccerGuru()
         player_dict = a.unload_pickle()
-        player_dict = a.filter(player_dict, rating, "", nation_code)
+        player_dict = a.filter(player_dict, rating, "", "", position)
         overall_list = list(player_dict.keys())
         overall_list.sort()
         overall_list = reversed(overall_list)
@@ -208,6 +125,7 @@ async def rnpage(ctx, nation="ENG", rating=99, number=10):
                 overall = next(overall_list)
                 for j in range(0, len(player_dict[overall])):
                     player = player_dict[overall][j]
+
                     memberlist.append(
                         f"{str(overall)} {player[2]} {player[0]} {player[1]} {player[4]}")
                     count += 1
@@ -218,9 +136,135 @@ async def rnpage(ctx, nation="ENG", rating=99, number=10):
 
             await ctx.send("No player found ! DM <@!333070457278562306> for more info")
         else:
-            memberlist = [
-                f"```Top {number} {nation} {rating} cards: "] + memberlist
+            memberlist = [f"```Top {number} {rating} cards: "] + memberlist
             await ctx.send("\n".join(memberlist)+"```")
+
+
+@bot.command()
+async def rn(ctx, nation="ENG", position="", rating=99, number=10):
+    position = position.upper()
+    if not validate_pos(position):
+        embed = discord.Embed()
+        inner = '\n'.join(positions)
+        embed.add_field(
+            name="You should enter the following positions:", value=inner, inline=False)
+
+        await ctx.send(embed=embed)
+    else:
+        if position == "all":
+            position = ""
+    # await ctx.send("Updating...")
+        nation = nation.upper()
+        nations = {'ENG': "14",
+                'FRA': "18",
+                "GER": "21",
+                "SPA": "45",
+                'NED': '34',
+                'POR': '38',
+                'ITA': '27',
+                'ARG': '52',
+                'BRA': '54',
+                'BEL': '7',
+                'DEN': '13',
+                'MEX': '83',
+                'URU': '60',
+                'CRO': '10',
+                'RUS': '40',
+                }
+        nation_code = nations.get(nation, None)
+        if nation_code is None:
+            legit_nation = list(nations.keys())
+            embed = discord.Embed()
+            inner = '\n'.join(legit_nation)
+            embed.add_field(
+                name="You should enter the following nations:", value=inner, inline=False)
+
+            await ctx.send(embed=embed)
+        else:
+            a = SoccerGuru()
+            player_dict = a.unload_pickle()
+            player_dict = a.filter(player_dict, rating, "", nation_code, position)
+            overall_list = list(player_dict.keys())
+            overall_list.sort()
+            overall_list = reversed(overall_list)
+            memberlist = []
+            count = 0
+            while count < min(number, 25):
+                try:
+                    overall = next(overall_list)
+                    for j in range(0, len(player_dict[overall])):
+                        player = player_dict[overall][j]
+                        memberlist.append(
+                            f"{str(overall)} {player[2]} {player[0]} {player[1]} {player[4]}")
+                        count += 1
+                except Exception as e:
+                    print(e)
+                    break
+            if len(memberlist) == 0:
+
+                await ctx.send("No player found ! DM <@!333070457278562306> for more info")
+            else:
+                memberlist = [
+                    f"```Top {number} {nation} {rating} cards: "] + memberlist
+                await ctx.send("\n".join(memberlist)+"```")
+
+
+# @bot.command()
+# async def rnpage(ctx, nation="ENG", rating=99, number=10):
+#     # await ctx.send("Updating...")
+#     nation = nation.upper()
+#     nations = {'ENG': "14",
+#                'FRA': "18",
+#                "GER": "21",
+#                "SPA": "45",
+#                'NED': '34',
+#                'POR': '38',
+#                'ITA': '27',
+#                'ARG': '52',
+#                'BRA': '54',
+#                'BEL': '7',
+#                'DEL': '13',
+#                'MEX': '83',
+#                'URU': '60',
+#                'CRO': '10',
+#                'RUS': '40',
+#                }
+#     nation_code = nations.get(nation, None)
+#     if nation_code is None:
+#         legit_nation = list(nations.keys())
+#         embed = discord.Embed()
+#         inner = '\n'.join(legit_nation)
+#         embed.add_field(
+#             name="You should enter the following nations:", value=inner, inline=False)
+
+#         await ctx.send(embed=embed)
+#     else:
+#         a = SoccerGuru()
+#         player_dict = a.unload_pickle()
+#         player_dict = a.filter(player_dict, rating, "", nation_code)
+#         overall_list = list(player_dict.keys())
+#         overall_list.sort()
+#         overall_list = reversed(overall_list)
+#         memberlist = []
+#         count = 0
+#         while count < min(number, 25):
+#             try:
+#                 overall = next(overall_list)
+#                 for j in range(0, len(player_dict[overall])):
+#                     player = player_dict[overall][j]
+#                     memberlist.append(
+#                         f"{str(overall)} {player[2]} {player[0]} {player[1]} {player[4]}")
+#                     count += 1
+#             except Exception as e:
+#                 print(e)
+#                 break
+#         if len(memberlist) == 0:
+
+#             await ctx.send("No player found ! DM <@!333070457278562306> for more info")
+#         else:
+#             memberlist = [
+#                 f"```Top {number} {nation} {rating} cards: "] + memberlist
+#             await ctx.send("\n".join(memberlist)+"```")
 
 
 @bot.command()
@@ -265,7 +309,22 @@ async def pages(ctx):
             # ending the loop if user doesn't react after x seconds
 tom_id = "736909539668131881"
 guru_bot_id = "668075833780469772"
-price_alert = 300000
+price_alert = 500000
+star_board_price = 200000
+star_board_channel_id = 952526495274909696
+
+
+def star(price):
+    if price < 100000:
+        return 0
+    stars = math.floor(price/100000)
+    s = ''
+
+    for i in range(stars):
+        s += ":star:"
+
+    return s
+
 
 @bot.event
 async def on_message(message):
@@ -275,8 +334,8 @@ async def on_message(message):
             if ".claim" in message.content.lower():
                 channel = message.channel
 
-                def check(m):            
-                    
+                def check(m):
+
                     if str(m.author.id) == guru_bot_id and m.channel == channel:
                         return True
 
@@ -284,66 +343,96 @@ async def on_message(message):
                 embed_msg = msg.embeds[0]
                 m1 = re.search(PRICE_PATTERN, embed_msg.description)
                 player = embed_msg.title.split()[0]
-                
-                if m1 and player != "Hãy":
-                    price = int(m1.group().replace(",","").replace("`",""))
-                    if price > price_alert:
-                        await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
-                    else:
-                        await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
-                else:
-                    msg_2 = await bot.wait_for('message', check=check)
-                    embed_msg_2 = msg_2.embeds[0]
 
-                    m2 = re.search(PRICE_PATTERN, embed_msg_2.description)
-                    player = embed_msg_2.title.split()[0]
-                    
-                    if m2 and player != "Hãy":
-                        price = int(m2.group().replace(",","").replace("`",""))
-                        if price > 300000:
-                            await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
-                        else:
-                            await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
-                
+                if (not m1) or player == "Hãy":
+                    msg = await bot.wait_for('message', check=check)
+                    embed_msg = msg.embeds[0]
+                    m1 = re.search(PRICE_PATTERN, embed_msg.description)
+                    player = embed_msg.title.split()[0]
+
+                price = int(m1.group().replace(",", "").replace("`", ""))
+                if price > star_board_price:
+                    star_board_channel = bot.get_channel(star_board_channel_id)
+                    embed_msg.description += f"\n[jump]({msg.jump_url})"
+
+                    await star_board_channel.send(embed=embed_msg)
+                if price > price_alert:
+                    await message.channel.send(f"{star(price)}")
+                    await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
+                else:
+                    if star(price) != 0:
+                        await message.channel.send(f"{star(price)}")
+                    await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
+
+                # if m1 and player != "Hãy":
+                #     price = int(m1.group().replace(",","").replace("`",""))
+                #     if price > price_alert:
+                #         await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
+                #     else:
+                #         await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
+                # else:
+                #     msg_2 = await bot.wait_for('message', check=check)
+                #     embed_msg_2 = msg_2.embeds[0]
+
+                #     m2 = re.search(PRICE_PATTERN, embed_msg_2.description)
+                #     player = embed_msg_2.title.split()[0]
+
+                #     if m2 and player != "Hãy":
+                #         price = int(m2.group().replace(",","").replace("`",""))
+                #         if price > 300000:
+                #             await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
+                #         else:
+                #             await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
+
     except Exception as e:
         print(e)
 
     await bot.process_commands(message)
-    
+
 # @bot.command()
 # async def roles(ctx):
 #     print(", ".join([str(r.id)+str(r.name) for r in ctx.guild.roles]))
 
+
 # @bot.event
 # async def on_message(message):
 #     if message.content.startswith('sclaim'):
-#         channel = bot.get_channel(925681747755143220)
-#         message = await channel.fetch_message(951172294737264661)
-#         embed_msg = message.embeds[0]
-#         pattern = r'([``])(?:(?=(\\?))\2.)*?\1'
-#         m1 = re.search(pattern, embed_msg.description)
-#         try:
-#             if m1:
-#                 price = int(m1.group().replace(",","").replace("`",""))
-#                 player = embed_msg.title.split()[0]
-#                 print(player, price)
-#                 # await message.channel.send(f"CLAIM-ALERT <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>py")
-#             else:
-#                 await message.channel.send(embed =embed_msg)
-#         except Exception as e:
-#             print(e)
+#         channel = bot.get_channel(907838283600515133)
+#         messages = await channel.history(limit=200).flatten()
+#         print(messages)
+        # guild = message.guild
+        # for channel in guild.channels:
+        #     if str(channel.type) == 'text':
+        #         print(channel.name, channel.id)
+
+        # message = await channel.fetch_message(951172294737264661)
+        # embed_msg = message.embeds[0]
+        # pattern = r'([``])(?:(?=(\\?))\2.)*?\1'
+        # m1 = re.search(pattern, embed_msg.description)
+        # embed_msg.description += f"[jump]({message.jump_url})"
+        # await message.channel.send(embed =embed_msg)
+    # try:
+    #     if m1:
+    #         price = int(m1.group().replace(",","").replace("`",""))
+    #         player = embed_msg.title.split()[0]
+    #         print(player, price)
+    #         # await message.channel.send(f"CLAIM-ALERT <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>py")
+    #     else:
+    #         await message.channel.send(embed =embed_msg)
+    # except Exception as e:
+    #     print(e)
     # if message.content.startswith('"claim'):
-        # channel = message.channel
+    # channel = message.channel
 
-        # def check(m):            
-            
-        #     if str(m.author.id) == "668075833780469772" and m.channel == channel:
-        #         return True
+    # def check(m):
 
-        # msg = await bot.wait_for('message', check=check)
-        # embed = msg.embeds[0];
-        # await channel.send(embed=embed
-        # )
+    #     if str(m.author.id) == "668075833780469772" and m.channel == channel:
+    #         return True
+
+    # msg = await bot.wait_for('message', check=check)
+    # embed = msg.embeds[0];
+    # await channel.send(embed=embed
+    # )
 
 token = getToken()
 bot.run(token)
