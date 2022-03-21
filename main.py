@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import pickle
 import threading
-
+from decouple import config
 
 class SoccerGuru():
     def __init__(self):
@@ -143,12 +143,12 @@ class SoccerGuru():
                         self.lock1.release()
 
     def _pickle_object(self, player_dict):
-        dbfile = open('playerpickle', 'ab')
+        dbfile = open(config('DRAFT_PICKLE_FILE_NAME'), 'ab')
         pickle.dump(player_dict, dbfile)
         dbfile.close()
 
     def _unpickle_object(self):
-        dbfile = open('playerpickle', 'rb')
+        dbfile = open(config('PICKLE_FILE_NAME'), 'rb')
         player_dict = pickle.load(dbfile)
         dbfile.close()
         return player_dict

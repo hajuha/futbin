@@ -1,3 +1,4 @@
+import asyncio
 from email import message
 import discord
 from main import SoccerGuru
@@ -6,6 +7,8 @@ from config import getToken
 from datetime import datetime
 import re
 import math
+import auto_crawl
+from multiprocessing import Process
 
 PRICE_PATTERN = r'([``])(?:(?=(\\?))\2.)*?\1'
 
@@ -382,6 +385,19 @@ async def on_message(message):
     # embed = msg.embeds[0];
     # await channel.send(embed=embed
     # )
+def run_bot():    
+    token = getToken()
+    bot.run(token)
+def run_crawl():
+    auto_crawl.run()
 
-token = getToken()
-bot.run(token)
+def runInParallel(*fns):
+  proc = []
+  for fn in fns:
+    p = Process(target=fn)
+    p.start()
+    proc.append(p)
+  for p in proc:
+    p.join()
+
+runInParallel(run_bot, run_crawl)
