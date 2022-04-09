@@ -213,11 +213,11 @@ async def on_message(message):
                     await star_board_channel.send(embed=embed_msg)
                 if price > price_alert:
                     await message.channel.send(f"{star(price)}")
-                    await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
+                    await message.channel.send(f"`BIG CLAIM ALERT` <@&926665190974562354> <@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:T>")
                 else:
                     if star(price) != 0:
                         await message.channel.send(f"{star(price)}")
-                    await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:f>")
+                    await message.channel.send(f"<@!{message.author.id}> đã claim được `{player}` giá `{price}` lúc <t:{math.floor(datetime.timestamp(message.created_at))}:T>")
     except Exception as e:
         print(e)
 
