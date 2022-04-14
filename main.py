@@ -93,22 +93,34 @@ class SoccerGuru():
 
         import csv
 
-        nations = {'ENG': "14",
-                   'FRA': "18",
-                   "GER": "21",
-                   "SPA": "45",
-                   'NED': '34',
-                   'POR': '38',
-                   'ITA': '27',
-                   'ARG': '52',
-                   'BRA': '54',
-                   'BEL': '7',
-                   'DEN': '13',
-                   'MEX': '83',
-                   'URU': '60',
-                   'CRO': '10',
-                   'RUS': '40',
-                   }
+        nations = {
+            'ENG': "14",
+            'FRA': "18",
+            "GER": "21",
+            "SPA": "45",
+            'NED': '34',
+            'POR': '38',
+            'ITA': '27',
+            'ARG': '52',
+            'BRA': '54',
+            'BEL': '7',
+            'DEN': '13',
+            'MEX': '83',
+            'URU': '60',
+            'CRO': '10',
+            'RUS': '40',
+            'USA': '95',
+            'JPN': '163',
+            'CHE': '47',
+            'AUT': '4',
+            'SRB': '51',
+            'HRV': '10',
+            'NGA': '133',
+            'CDI': '108',
+            'HUN': '23',
+            'BUL': '9',
+            'CZE': '12'
+        }
 
         with open('guru.csv') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
